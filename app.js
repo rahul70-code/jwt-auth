@@ -3,13 +3,14 @@ var express = require('express'),
     bodyParser = require('body-parser'),
     mongoose = require('mongoose'),
     morgan = require('morgan'),
-    userRoutes = require('./api/routes/users')
+    userRoutes = require('./api/routes/users'),
+    postRoutes = require('./api/routes/posts')
 
     require('dotenv').config();
 
 
 app.use(morgan('dev'));
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: false}));
 app.use(bodyParser.json());
 
 // mongodb
@@ -18,12 +19,18 @@ mongoose.connect(process.env.MONGO_URL,
     if(err) {
         console.log(err)
     } else {
-        console.log('connected to JWTAuth DB!')
+        console.log('connected to userForm DB!')
     }
 })
 
 //ROUTES
-app.use('/user', userRoutes);
+
+app.get('/', (req,res)=> {
+    res.send('hello world!')
+})
+
+app.use('/api/user', userRoutes);
+app.use('/api', postRoutes);
 // app.get('/api', (req,res)=>{
 //     res.send({message:"welcome to the api"});
 // });
