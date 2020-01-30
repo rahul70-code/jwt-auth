@@ -5,6 +5,7 @@ const bcrypt = require("bcrypt");
 const jwt = require('jsonwebtoken')
 
 const User = require("../models/user");
+const accessToken = require('../models/access_token');
 
 router.post("/signup", (req, res, next) => {
   User.find({ email: req.body.email })
@@ -28,7 +29,7 @@ router.post("/signup", (req, res, next) => {
             });
             user.save()
               .then(result => {
-                console.log(result);
+                // console.log(result);
                 res.status(201).json({
                   message: "User created",
                   result
@@ -73,7 +74,14 @@ router.post("/login", (req, res, next) => {
               }
             );
 
-            
+            accessToken.create({token: token, userId: user[0]._id},(err, tokenObj)=> {
+              if(err) {
+                throw err
+              } else {
+                console.log(tokenObj)
+              };
+            });
+              
             return res.status(200).json({
               message: "Auth successful",
               access_token: token

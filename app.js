@@ -19,7 +19,7 @@ mongoose.connect(process.env.MONGO_URL,
     if(err) {
         console.log(err)
     } else {
-        console.log('connected to userForm DB!')
+        console.log('connected to JWTAuthDB!')
     }
 })
 
@@ -33,6 +33,6 @@ app.use('/api/users', userRoutes);
 app.use('/api',checkToken,postRoutes);
 
 
-app.listen(5000, ()=>{
-    console.log('server running at 5000!')
+app.listen(process.env.PORT, ()=>{
+    console.log(`server running at ${process.env.PORT}`)
 })
