@@ -4,13 +4,13 @@ var express = require('express'),
     mongoose = require('mongoose'),
     morgan = require('morgan'),
     userRoutes = require('./api/routes/users'),
-    postRoutes = require('./api/routes/posts')
+    postRoutes = require('./api/routes/posts'),
+    checkToken = require('./auth').checkToken
 
     require('dotenv').config();
 
-
 app.use(morgan('dev'));
-app.use(bodyParser.urlencoded({ extended: false}));
+app.use(bodyParser.urlencoded({ extended: true}));
 app.use(bodyParser.json());
 
 // mongodb
@@ -29,58 +29,9 @@ app.get('/', (req,res)=> {
     res.send('hello world!')
 })
 
-app.use('/api/user', userRoutes);
-app.use('/api', postRoutes);
-// app.get('/api', (req,res)=>{
-//     res.send({message:"welcome to the api"});
-// });
+app.use('/api/users', userRoutes);
+app.use('/api',checkToken,postRoutes);
 
-// app.post('/register', (req, res)=> {
-
-// })
-
-
-// app.post('/api/posts',verifyToken,(req,res)=> {
-//     jwt.verify(req.token, 'secretkey', (err, authData)=> {
-//         if(err) {
-//             res.sendStatus(403);
-//         } else {
-//             res.json(
-//                 {
-//                     message: "new posts....",
-//                     authData
-//                 })
-//         }
-//     })
-    
-// });
-
-// app.post('/api/login',(req, res)=>{
-//     const user = {
-//         username: "rahul",
-//         email: "rahul@gmail.com"
-//     };
-    
-//     jwt.sign({user: user}, 'secretkey', (err, token)=> {
-//         res.json({
-//             token: token
-//         });
-//     });
-// });
-
-// function verifyToken(req, res, next){
-//     const bearerHeader = req.headers['authorization'];
-//     if(typeof bearerHeader != undefined) {
-//         var bearer = bearerHeader.split(' ');
-//         var bearerToken = bearer[1];
-//         req.token = bearerToken;
-//         next();
-//     } else {
-//         res.sendStatus(403);
-//         // next()
-//     }
-
-// }
 
 app.listen(5000, ()=>{
     console.log('server running at 5000!')

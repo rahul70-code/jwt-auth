@@ -3,12 +3,16 @@ const router = express.Router();
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const jwt = require('jsonwebtoken');
+const checkToken = require('../../auth')
 
 const Post = require('../models/post');
 
-router.post('/posts', function(req,res) {
+router.post('/posts',  function(req,res,next) {
     var title = req.body.title;
     var description = req.body.description;
+    console.log(req.body)
+    console.log(title)
+    console.log(description)
     if(!req.body.title) {
        return res.status(400).send({
            message: 'title cannot be blank'
@@ -22,6 +26,7 @@ router.post('/posts', function(req,res) {
         post.save()
         .then(data => {
             res.send(data);
+            next()
         }).catch(err => {
             res.status(500).send({
                 message: err.message
@@ -31,7 +36,7 @@ router.post('/posts', function(req,res) {
 
 });
 
-router.get('/posts', function(req,res){
+router.get('/posts',function(req,res){
     Post.find()
     .then(notes => {
         res.send(notes);
@@ -42,7 +47,7 @@ router.get('/posts', function(req,res){
     });
 });
 
-router.get('/posts/:id', function(req, res){
+router.get('/posts/:id',function(req, res){
   Post.findById(req.params.id, function(err, post){
     if(err){
         return res.status(404).send({
