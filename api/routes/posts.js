@@ -11,16 +11,16 @@ const Post = require('../models/post');
 router.post('/posts', function (req, res, next) {
     var title = req.body.title;
     var description = req.body.description;
-    console.log(req.params)
+    console.log(req.query)
     if (!req.body.title) {
         return res.status(400).send({
             message: 'title cannot be blank'
         });
     } else {
-        if (req.params.access_token) {
-            
-            var user1 = jwtAuth(access_token);
-
+        if (req.query.access_token) {
+            var access_token = req.query.access_token;
+            var user1 = await jwtAuth(access_token); // this is wrong ---> try async waterfall
+            console.log(user1)
         var post = new Post({
             title: title,
             description: description,
@@ -113,7 +113,7 @@ router.delete('/posts/:id', middleware.postOwnership, function (req, res) {
     }
 });
 
-function jwtAuth(access_token) {
+async function jwtAuth(access_token) {
     jwt.verify(access_token, process.env.JWT_KEY, (err, user) => {
         // console.log(decoded)
         if (err) {
@@ -122,6 +122,7 @@ function jwtAuth(access_token) {
                 message: 'Token is not valid'
             });
         } else {
+            console.log(user)
             return user
         }
     });
