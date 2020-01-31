@@ -3,9 +3,19 @@ const router = express.Router();
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const jwt = require('jsonwebtoken')
-
+const checkToken = require('../../auth')
 const User = require("../models/user");
 const accessToken = require('../models/access_token');
+
+router.get('/',checkToken, (req, res)=> {
+  User.find({})
+  .exec()
+  .then((user) => {
+      res.send(user)
+  }).catch(err => {
+      res.statusCode(400).send({message: err});
+  });
+});
 
 router.post("/signup", (req, res, next) => {
   User.find({ email: req.body.email })
@@ -114,6 +124,14 @@ router.delete("/:userId", (req, res, next) => {
         error: err
       });
     });
+});
+
+// forget password
+router.get('/forgotpassword', function (req, res) {
+  res.send('<form action="/passwordreset" method="POST">' +
+      '<input type="email" name="email" value="" placeholder="Enter your email address..." />' +
+      '<input type="submit" value="Reset Password" />' +
+  '</form>');
 });
 
 module.exports = router;

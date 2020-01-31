@@ -6,7 +6,7 @@ let checkToken = function(req, res, next){
       if (token) {
         //   console.log(token)
         jwt.verify(token, process.env.JWT_KEY, (err, decoded) => {
-            console.log(decoded)
+            // console.log(decoded)
           if (err) {
             return res.json({
               success: false,
@@ -26,7 +26,5 @@ let checkToken = function(req, res, next){
       
 }
 
-module.exports = {
-    checkToken: checkToken
-  }
+module.exports = checkToken
 

@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const User = require('./user');
 
 const postSchema = mongoose.Schema({
     title: {
@@ -7,6 +8,13 @@ const postSchema = mongoose.Schema({
     },
     description: {
         type: String,
+    },
+    author: {
+        id: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User"
+        },
+        email: String
     }
 });
 
