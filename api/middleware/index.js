@@ -1,15 +1,19 @@
 var post = require('../models/post');
+var jwtAuth = require('../utils/index').authVerify
 
 var middlewareObject = {};
 
 middlewareObject.postOwnership = (req, res, next) => {
+    console.log(req.params.id)
+
     post.findById(req.params.id)
     .then(posts => {
-        if(posts.author.id.equals(req.user._id)){
+        // console.log(req,"------------------")
+        if(posts.author.id.equals(req.user.id)){
             next();
         }
-    }).catch(error)(
-        res.send({message: error})
+    }).catch(e)(
+        res.send({message: e})
         );
 };
 

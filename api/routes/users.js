@@ -18,12 +18,12 @@ router.get('/',checkToken, (req, res)=> {
 });
 
 router.post("/signup", (req, res, next) => {
-  User.find({ email: req.body.email })
+  User.find({ email: req.body.email, username: req.body.username })
     .exec()
     .then(user => {
       if (user.length >= 1) {
         return res.status(409).json({
-          message: "Mail exists"
+          message: "Mail/username exists"
         });
       } else {
         bcrypt.hash(req.body.password, 10, (err, hash) => {
@@ -35,6 +35,7 @@ router.post("/signup", (req, res, next) => {
             const user = new User({
               _id: new mongoose.Types.ObjectId(),
               email: req.body.email,
+              username: req.body.username,
               password: hash
             });
             user.save()
@@ -58,7 +59,7 @@ router.post("/signup", (req, res, next) => {
 });
 
 router.post("/login", (req, res, next) => {
-    User.find({ email: req.body.email })
+    User.find({ email: req.body.email, username: req.body.username })
       .exec()
       .then(user => {
         if (user.length < 1) {
@@ -76,6 +77,7 @@ router.post("/login", (req, res, next) => {
             const token = jwt.sign(
               {
                 email: user[0].email,
+                username: user[0].username,
                 userId: user[0]._id
               },
               process.env.JWT_KEY,

@@ -3,48 +3,66 @@ const router = express.Router();
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const jwt = require('jsonwebtoken');
+const async = require('async');
 const checkToken = require('../../auth');
-const middleware = require('../middleware')
+const middleware = require('../middleware');
+const jwtAuth = require('../utils/index').authVerify
 
 const Post = require('../models/post');
 
 router.post('/posts', function (req, res, next) {
-    var title = req.body.title;
-    var description = req.body.description;
-    console.log(req.query)
-    if (!req.body.title) {
-        return res.status(400).send({
-            message: 'title cannot be blank'
-        });
+    if(!req.query.access_token) {
+            res.send({
+                status: 404,
+                message: "access_token needed"
+            }) 
+        
     } else {
-        if (req.query.access_token) {
-            var access_token = req.query.access_token;
-            var user1 = await jwtAuth(access_token); // this is wrong ---> try async waterfall
-            console.log(user1)
-        var post = new Post({
-            title: title,
-            description: description,
-            author: {
-                id: user1._id,
-                email: user1.email
-            }
-        });
-
-        post.save()
-            .then(data => {
-                res.send(data);
-                next()
-            }).catch(err => {
-                res.status(500).send({
-                    message: err.message
-                });
+        if (!req.body.title) {
+            return res.status(400).send({
+                message: 'title cannot be blank'
             });
-    } else {
-        res.send({
-            message: 'Auth token has not supplied'
-        })
-    }
-    }
+        }  else {
+            var title = req.body.title;
+            var description = req.body.description;
+            // console.log(req.query)
+        
+            async.waterfall([
+                function(cb) {
+                    var access_token = req.query.access_token;
+                    jwtAuth(access_token,cb);
+                },
+                function(user,cb){
+                    // console.log(user)
+                    var post = new Post({
+                        title: title,
+                        description: description,
+                        author: {
+                            id: user.userId,
+                            email: user.email,
+                            username: user.username
+                        }
+                    });
+                    post.save()
+                    .then(data => {
+                        cb(null,data);
+                    }).catch(err => {
+                        cb(err, null);
+                    });
+                }
+            ], (err, results)=>{
+                if(err) {
+                    res.status(500).send({
+                        message: err.message
+                    });
+                } else {
+                    // console.log(results)
+                    res.send(results)
+                }
+        
+            });
+        } 
+    }   
 });
 
 router.get('/posts', function (req, res) {
@@ -113,19 +131,6 @@ router.delete('/posts/:id', middleware.postOwnership, function (req, res) {
     }
 });
 
-async function jwtAuth(access_token) {
-    jwt.verify(access_token, process.env.JWT_KEY, (err, user) => {
-        // console.log(decoded)
-        if (err) {
-            return res.json({
-                success: false,
-                message: 'Token is not valid'
-            });
-        } else {
-            console.log(user)
-            return user
-        }
-    });
-}
+
 
 module.exports = router;
