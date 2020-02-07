@@ -88,15 +88,15 @@ router.get('/posts/:id', function (req, res) {
     });
 });
 
-router.put('/posts/:id/update', middleware.postOwnership, function (req, res) {
-    if (!req.body.content) {
+router.put('/posts/:id', middleware.postOwnership, function (req, res) {
+    if (!req.body.description) {
         return res.status(400).send({
             message: "Note content can not be empty"
         });
     }
 
     // Find note and update it with the request body
-    Post.findByIdAndUpdate(req.params.id, {
+    Post.findOneAndUpdate(req.params.id, {
         title: req.body.title || "Untitled Note",
         description: req.body.description
     }, { new: true })

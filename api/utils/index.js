@@ -1,4 +1,6 @@
+var jwt = require('jsonwebtoken')
 module.exports = {
+    
  authVerify : function jwtAuth(access_token,cb) {
     jwt.verify(access_token, process.env.JWT_KEY, (err, user) => {
         // console.log(decoded)
