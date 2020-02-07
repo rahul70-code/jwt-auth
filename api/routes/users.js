@@ -6,6 +6,8 @@ const jwt = require('jsonwebtoken')
 const checkToken = require('../../auth')
 const User = require("../models/user");
 const accessToken = require('../models/access_token');
+const jwtAuth = require('../utils').authVerify;
+const async = require('async')
 
 router.get('/',checkToken, (req, res)=> {
   User.find({})
@@ -112,20 +114,46 @@ router.post("/login", (req, res, next) => {
       });
   });
 
-router.delete("/:userId", (req, res, next) => {
-  User.remove({ _id: req.params.userId })
-    .exec()
-    .then(result => {
-      res.status(200).json({
-        message: "User deleted"
-      });
-    })
-    .catch(err => {
-      console.log(err);
-      res.status(500).json({
-        error: err
-      });
+router.delete("/:userId",checkToken,(req, res, next) => {
+  // var access_token = req.query.access_token;
+
+     async.waterfall([
+        function(cb) {
+            var access_token = req.query.access_token;
+            jwtAuth(access_token,cb);
+        },
+        function(user,cb){
+          if(user.userId == req.params.userId) {
+            User.remove({ _id: req.params.userId })
+            .exec()
+            .then(result => {
+              res.status(200).json({
+                message: "User deleted"
+              });
+            })
+            .catch(err => {
+              console.log(err);
+              res.status(500).json({
+                error: err
+              });
+            });
+          } else {
+            var message = 'you dont have permission'
+            cb(null,message)
+          }
+        }
+    ], (err, results)=>{
+        if(err) {
+            res.status(500).send({
+                message: err.message
+            });
+        } else {
+            // console.log(results)
+          next(results)
+        }
+
     });
+
 });
 
 // forget password

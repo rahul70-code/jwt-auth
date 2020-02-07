@@ -4,14 +4,14 @@ var async = require('async')
 var middlewareObject = {};
 
 middlewareObject.postOwnership = (req, res, next) => {
-    console.log(req.params)
+    // console.log(req.params)
     async.waterfall([
         function(cb) {
             var access_token = req.query.access_token;
             jwtAuth(access_token,cb);
         },
         function(user,cb){
-            console.log(user)
+            // console.log(user)
             if(user != null) {
            post.findById(req.params.id, function(err,data){
             //    console.log(data)
