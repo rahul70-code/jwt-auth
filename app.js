@@ -5,7 +5,7 @@ var express = require('express'),
     morgan = require('morgan'),
     userRoutes = require('./api/routes/users'),
     postRoutes = require('./api/routes/posts'),
-    checkToken = require('./auth')
+    checkToken = require('./auth');
 
     require('dotenv').config();
 
